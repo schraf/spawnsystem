@@ -21,7 +21,7 @@ namespace SpawnSystem.Evaluators
 			if (gameObjects.Length == 0)
 			{
 				cost = 1.0f;
-				return false;
+				return true;
 			}
 
 			foreach (GameObject gameObject in gameObjects)
