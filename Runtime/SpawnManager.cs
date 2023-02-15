@@ -5,43 +5,38 @@ namespace SpawnSystem
 {
 	public class SpawnManager : MonoBehaviour
 	{
-		private List<ISpawnPoint> SpawnPoints = new List<ISpawnPoint>();
+		private List<SpawnPoint> SpawnPoints = new List<SpawnPoint>();
 
-		public void RegisterSpawnPoint(ISpawnPoint spawnPoint)
+		public void RegisterSpawnPoint(SpawnPoint spawnPoint)
 		{
 			SpawnPoints.Add(spawnPoint);
 		}
 
-		public void DeregisterSpawnPoint(ISpawnPoint spawnPoint)
+		public void DeregisterSpawnPoint(SpawnPoint spawnPoint)
 		{
 			SpawnPoints.Remove(spawnPoint);
 		}
 
-		public bool Spawn(ISpawnable spawnable)
+		public void AttemptSpawn()
 		{
-			ISpawnPoint bestSpawnPoint = null;
+			SpawnPoint bestSpawnPoint = null;
 			float bestCost = float.PositiveInfinity;
 
-			foreach (ISpawnPoint spawnPoint in SpawnPoints)
+			foreach (SpawnPoint spawnPoint in SpawnPoints)
 			{
 				float cost = float.NaN;
 
-				if (spawnPoint.Eval(spawnable, out cost) && (bestSpawnPoint == null || cost < bestCost))
+				if (spawnPoint.Eval(out cost) && (bestSpawnPoint == null || cost < bestCost))
 				{
 					bestSpawnPoint = spawnPoint;
 					bestCost = cost;
 				}
 			}
 
-			if (bestSpawnPoint != null)
+			if (bestSpawnPoint)
 			{
-				spawnable.Spawn(bestSpawnPoint);
-				bestSpawnPoint.OnSpawned(spawnable);
-				return true;
+				bestSpawnPoint.Spawn();
 			}
-
-			return false;
 		}
 	}
-
 }

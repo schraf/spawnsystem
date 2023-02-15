@@ -4,10 +4,13 @@ using System.Collections.Generic;
 
 namespace SpawnSystem
 {
-	public class SpawnPoint : MonoBehaviour, ISpawnPoint
+	public class SpawnPoint : MonoBehaviour
 	{
-		public UnityEvent<ISpawnPoint, ISpawnable> SpawnEvent;
-		public SpawnManager Manager;
+		public UnityEvent<GameObject> SpawnEvent;
+
+		[SerializeField]
+		private SpawnManager Manager;
+
 		private List<ISpawnPointEvaluator> Evaluators = new List<ISpawnPointEvaluator>();
 
 		public void Start()
@@ -25,9 +28,7 @@ namespace SpawnSystem
 			Manager.DeregisterSpawnPoint(this);
 		}
 
-		public Vector3 Location { get { return transform.position; } }
-
-		public bool Eval(ISpawnable spawnable, out float cost)
+		public bool Eval(out float cost)
 		{
 			cost = 0.0f;
 
@@ -35,7 +36,7 @@ namespace SpawnSystem
 			{
 				float evaluatorCost = 0.0f;
 
-				if (evaluator.Eval(spawnable, out evaluatorCost))
+				if (evaluator.Eval(out evaluatorCost))
 				{
 					cost += (evaluatorCost * evaluator.Weight);
 				}
@@ -48,14 +49,17 @@ namespace SpawnSystem
 			return true;
 		}
 
-		public void OnSpawned(ISpawnable spawnable)
+		public void Spawn()
 		{
 			foreach (ISpawnPointEvaluator evaluator in Evaluators)
 			{
-				evaluator.OnSpawned(spawnable);
+				evaluator.OnSpawned();
 			}
 
-			SpawnEvent.Invoke(this, spawnable);
+			if (SpawnEvent != null)
+			{
+				SpawnEvent.Invoke(gameObject);
+			}
 		}
 	}
 }
